@@ -1,20 +1,16 @@
 // api/facebook-profile.js
 // Private API — developed by @its_aritra_nath
-const serpapi = require("serpapi");
 
 /* ------------------------------------------------------------------ */
 /*  CONFIG                                                             */
 /* ------------------------------------------------------------------ */
 
-// The private key that protects THIS api (value = "aritra")
-const PRIVATE_API_KEY = "aritra";
+const PRIVATE_API_KEY = process.env.PRIVATE_API_KEY || "aritra";
 
-// Your SerpAPI key. Prefer setting SERPAPI_KEY in Vercel env vars.
 const SERPAPI_KEY =
   process.env.SERPAPI_KEY ||
   "40242a83adc479365210d32cbe4dbc3827c808cf3a5119d36a55cc135031d955";
 
-// Developer credit (always injected into every response)
 const DEVELOPER = {
   developed_by: "@its_aritra_nath",
   developer_name: "Aritra Nath",
@@ -28,15 +24,13 @@ const DEVELOPER = {
 /* ------------------------------------------------------------------ */
 
 module.exports = async (req, res) => {
-  // ---- CORS so it is callable from any browser ----
+  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-api-key, Authorization");
   res.setHeader("Cache-Control", "no-store");
 
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
+  if (req.method === "OPTIONS") return res.status(200).end();
 
   if (req.method !== "GET") {
     return res.status(405).json({
@@ -46,7 +40,7 @@ module.exports = async (req, res) => {
     });
   }
 
-  // ---- Private key check ----
+  // Private key check
   const providedKey =
     req.headers["x-api-key"] ||
     (req.headers.authorization || "").replace(/^Bearer\s+/i, "") ||
@@ -61,27 +55,34 @@ module.exports = async (req, res) => {
     });
   }
 
-  // ---- Input ----
   const profileId = (req.query && req.query.profile_id) || "serpapicom";
 
-  // ---- Call SerpAPI ----
+  // ---- Call SerpAPI directly via REST ----
   try {
-    const client = new serpapi.Client({ api_key: SERPAPI_KEY });
+    const url =
+      "https://serpapi.com/search.json" +
+      `?engine=facebook_profile` +
+      `&profile_id=${encodeURIComponent(profileId)}` +
+      `&api_key=${encodeURIComponent(SERPAPI_KEY)}`;
 
-    const results = await client.search({
-      engine: "facebook_profile",
-      profile_id: profileId,
-    });
+    const serpRes = await fetch(url);
+    const data = await serpRes.json();
 
-    const profileResults = results["profile_results"] || results.profile_results || [];
+    if (!serpRes.ok || data.error) {
+      return res.status(502).json({
+        success: false,
+        error: "SerpAPI request failed.",
+        details: data.error || `HTTP ${serpRes.status}`,
+        ...DEVELOPER,
+      });
+    }
+
+    const profileResults = data.profile_results || [];
 
     return res.status(200).json({
       success: true,
       ...DEVELOPER,
-      query: {
-        engine: "facebook_profile",
-        profile_id: profileId,
-      },
+      query: { engine: "facebook_profile", profile_id: profileId },
       count: Array.isArray(profileResults) ? profileResults.length : 0,
       fetched_at: new Date().toISOString(),
       profile_results: profileResults,
