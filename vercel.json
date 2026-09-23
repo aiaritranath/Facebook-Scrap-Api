@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/api", "destination": "/api/facebook-profile" },
+    { "source": "/api/profile", "destination": "/api/facebook-profile" }
+  ]
+}

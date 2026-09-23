@@ -1,0 +1,17 @@
+{
+  "name": "aritra-facebook-profile-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Private key-protected Facebook Profile API — developed by @its_aritra_nath",
+  "main": "api/facebook-profile.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "serpapi": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

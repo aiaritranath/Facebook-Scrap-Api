@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facebook Profile API — by @its_aritra_nath</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: #0f1115; color: #e7e9ee;
+      margin: 0; padding: 32px 16px;
+    }
+    .wrap { max-width: 860px; margin: 0 auto; }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    .sub { color: #8b93a7; font-size: 14px; margin-bottom: 24px; }
+    .sub a { color: #7aa2ff; text-decoration: none; }
+    .card {
+      background: #171a21; border: 1px solid #242833;
+      border-radius: 12px; padding: 18px; margin-bottom: 16px;
+    }
+    label { display: block; font-size: 13px; color: #8b93a7; margin-bottom: 6px; }
+    input {
+      width: 100%; box-sizing: border-box; padding: 10px 12px;
+      background: #0f1115; border: 1px solid #2b3040; border-radius: 8px;
+      color: #e7e9ee; font-size: 14px; outline: none;
+    }
+    input:focus { border-color: #7aa2ff; }
+    button {
+      margin-top: 14px; padding: 10px 18px; border: 0; border-radius: 8px;
+      background: #7aa2ff; color: #0f1115; font-weight: 600;
+      font-size: 14px; cursor: pointer;
+    }
+    button:hover { background: #94b3ff; }
+    pre {
+      background: #0f1115; border: 1px solid #242833; border-radius: 8px;
+      padding: 14px; overflow: auto; max-height: 460px;
+      font-size: 12.5px; line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Facebook Profile API</h1>
+    <div class="sub">
+      Developed by <a href="https://instagram.com/its_aritra_nath" target="_blank">@its_aritra_nath</a>
+    </div>
+
+    <div class="card">
+      <label for="key">Private API Key</label>
+      <input id="key" value="aritra" />
+
+      <label for="pid" style="margin-top:14px">Profile ID</label>
+      <input id="pid" value="serpapicom" />
+
+      <button onclick="run()">Send Request</button>
+    </div>
+
+    <pre id="out">// response will appear here</pre>
+  </div>
+
+  <script>
+    async function run() {
+      const key = document.getElementById("key").value;
+      const pid = document.getElementById("pid").value;
+      const out = document.getElementById("out");
+      out.textContent = "Loading...";
+      try {
+        const r = await fetch(
+          `/api/facebook-profile?key=${encodeURIComponent(key)}&profile_id=${encodeURIComponent(pid)}`
+        );
+        const j = await r.json();
+        out.textContent = JSON.stringify(j, null, 2);
+      } catch (e) {
+        out.textContent = "Error: " + e.message;
+      }
+    }
+  </script>
+</body>
+</html>
